@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind Sharpness & Cognitive Agility Gym</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .light .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        .pulse-subtle {
+            animation: pulse-border 2s infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% { border-color: rgba(99, 102, 241, 0.4); }
+            50% { border-color: rgba(99, 102, 241, 0.9); }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col transition-colors duration-300 light:bg-slate-50 light:text-slate-800">
+
+    <!-- Top Navigation -->
+    <header class="border-b border-slate-800/80 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('dashboard')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-brain text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">CogniSharp</h1>
+                    <span class="text-[10px] text-slate-400 tracking-wider uppercase font-semibold">Mind Agility Engine</span>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="hidden sm:flex items-center gap-6 text-sm bg-slate-800/40 px-4 py-1.5 rounded-full border border-slate-700/50">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-fire text-amber-500"></i>
+                    <span class="text-slate-400">Streak:</span>
+                    <span id="streak-display" class="font-bold text-amber-400">0</span>
+                </div>
+                <div class="w-px h-4 bg-slate-700"></div>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-indigo-400"></i>
+                    <span class="text-slate-400">XP:</span>
+                    <span id="xp-display" class="font-bold text-indigo-300">0</span>
+                </div>
+                <div class="w-px h-4 bg-slate-700"></div>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-bullseye text-emerald-400"></i>
+                    <span class="text-slate-400">Accuracy:</span>
+                    <span id="accuracy-display" class="font-bold text-emerald-300">0%</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button id="theme-toggle" onclick="toggleTheme()" class="p-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all">
+                    <i class="fa-solid fa-moon text-lg" id="theme-icon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col justify-center">
+
+        <!-- VIEW 1: DASHBOARD / MODE SELECTION -->
+        <section id="view-dashboard" class="space-y-8 animate-fade-in">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-900/50 via-purple-900/30 to-slate-900 border border-indigo-500/20 p-6 sm:p-8">
+                <div class="relative z-10 max-w-2xl">
+                    <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 text-xs font-semibold rounded-full border border-indigo-500/30">Infinite Procedural Challenges</span>
+                    <h2 class="text-2xl sm:text-4xl font-extrabold text-white mt-3 mb-2">Sharpen Your Cognitive Agility</h2>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Never play the same question twice. Dynamic algorithms generate unique visual-spatial puzzles, working memory chains, and ciphers to stretch your mental boundaries.
+                    </p>
+                    <div class="mt-6 flex flex-wrap gap-4">
+                        <button onclick="startSession('quick')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-indigo-600/30 flex items-center gap-2 transition-all hover:scale-105 active:scale-95">
+                            <i class="fa-solid fa-play"></i>
+                            Quick Workout (5 Questions)
+                        </button>
+                        <button onclick="startSession('blitz')" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-amber-600/30 flex items-center gap-2 transition-all hover:scale-105 active:scale-95">
+                            <i class="fa-solid fa-stopwatch"></i>
+                            60s Speed Blitz
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cognitive Category Workout Cards -->
+            <div>
+                <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-indigo-400"></i> Target Specific Cognitive Domains
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    
+                    <!-- Category 1 -->
+                    <div onclick="startSession('category', 'memory')" class="glass-panel p-5 rounded-2xl hover:border-indigo-500/50 cursor-pointer transition-all hover:-translate-y-1 group">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                                <i class="fa-solid fa-calculator text-xl"></i>
+                            </div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-800 text-slate-400">Working Memory</span>
+                        </div>
+                        <h4 class="font-bold text-white text-lg group-hover:text-indigo-300 transition-colors">Sequential Math Chains</h4>
+                        <p class="text-xs text-slate-400 mt-1">Process multi-step operations in your mind without writing down intermediate values.</p>
+                    </div>
+
+                    <!-- Category 2 -->
+                    <div onclick="startSession('category', 'spatial')" class="glass-panel p-5 rounded-2xl hover:border-indigo-500/50 cursor-pointer transition-all hover:-translate-y-1 group">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-all">
+                                <i class="fa-solid fa-arrows-spin text-xl"></i>
+                            </div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-800 text-slate-400">Spatial Reasoning</span>
+                        </div>
+                        <h4 class="font-bold text-white text-lg group-hover:text-indigo-300 transition-colors">Grid Rotation & Orientation</h4>
+                        <p class="text-xs text-slate-400 mt-1">Mentally manipulate 3x3 matrices and track coordinates across 90°, 180°, and 270° shifts.</p>
+                    </div>
+
+                    <!-- Category 3 -->
+                    <div onclick="startSession('category', 'pattern')" class="glass-panel p-5 rounded-2xl hover:border-indigo-500/50 cursor-pointer transition-all hover:-translate-y-1 group">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                                <i class="fa-solid fa-key text-xl"></i>
+                            </div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-800 text-slate-400">Pattern Decoding</span>
+                        </div>
+                        <h4 class="font-bold text-white text-lg group-hover:text-indigo-300 transition-colors">Cipher & Pattern Shifts</h4>
+                        <p class="text-xs text-slate-400 mt-1">Deduce shift algorithms and numerical relationships quickly from sample pairs.</p>
+                    </div>
+
+                    <!-- Category 4 -->
+                    <div onclick="startSession('category', 'logic')" class="glass-panel p-5 rounded-2xl hover:border-indigo-500/50 cursor-pointer transition-all hover:-translate-y-1 group">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-all">
+                                <i class="fa-solid fa-diagram-project text-xl"></i>
+                            </div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-800 text-slate-400">Deductive Logic</span>
+                        </div>
+                        <h4 class="font-bold text-white text-lg group-hover:text-indigo-300 transition-colors">Semantic & Categorical Matrices</h4>
+                        <p class="text-xs text-slate-400 mt-1">Identify non-obvious oddities, set properties, and logical syllogisms.</p>
+                    </div>
+
+                    <!-- Category 5 -->
+                    <div onclick="startSession('category', 'math')" class="glass-panel p-5 rounded-2xl hover:border-indigo-500/50 cursor-pointer transition-all hover:-translate-y-1 group">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 group-hover:bg-rose-500 group-hover:text-white transition-all">
+                                <i class="fa-solid fa-bolt text-xl"></i>
+                            </div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-800 text-slate-400">Mental Speed</span>
+                        </div>
+                        <h4 class="font-bold text-white text-lg group-hover:text-indigo-300 transition-colors">Speed Number Sense</h4>
+                        <p class="text-xs text-slate-400 mt-1">High-speed calculations, prime estimations, and numerical inequality checks.</p>
+                    </div>
+
+                    <!-- Analytics Card -->
+                    <div onclick="switchView('stats')" class="glass-panel p-5 rounded-2xl border-indigo-500/30 bg-gradient-to-br from-indigo-950/30 to-slate-900 cursor-pointer transition-all hover:-translate-y-1 group">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                                <i class="fa-solid fa-chart-line text-xl"></i>
+                            </div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-indigo-500/20 text-indigo-300">Dashboard</span>
+                        </div>
+                        <h4 class="font-bold text-white text-lg group-hover:text-indigo-300">Cognitive Profile & Analytics</h4>
+                        <p class="text-xs text-slate-400 mt-1">View category breakdowns, answer speed, accuracy trends, and training logs.</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: GAMEPLAY WORKOUT INTERFACE -->
+        <section id="view-gameplay" class="hidden max-w-3xl mx-auto w-full space-y-6">
+            <!-- Game Header & Timer -->
+            <div class="glass-panel p-4 rounded-2xl flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <button onclick="confirmExitGame()" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <span id="game-category-badge" class="text-xs font-semibold text-indigo-400 uppercase tracking-wider">Working Memory</span>
+                        <h3 id="game-title" class="font-bold text-white text-base">Question 1 of 5</h3>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <!-- Progress meter -->
+                    <div class="hidden sm:flex items-center gap-2">
+                        <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div id="game-progress-bar" class="bg-indigo-500 h-full w-1/5 transition-all duration-300"></div>
+                        </div>
+                    </div>
+                    <!-- Timer -->
+                    <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
+                        <i class="fa-regular fa-clock text-amber-400"></i>
+                        <span id="game-timer" class="font-mono font-bold text-amber-400 text-lg">00:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div id="question-card" class="glass-panel p-6 sm:p-8 rounded-2xl space-y-6 pulse-subtle relative">
+                <!-- Question Statement -->
+                <div>
+                    <span id="question-difficulty" class="inline-block px-2.5 py-0.5 rounded text-[11px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase mb-3">Medium</span>
+                    <h2 id="question-text" class="text-xl sm:text-2xl font-bold text-slate-100 leading-snug">
+                        <!-- Dynamic Question Goes Here -->
+                    </h2>
+                </div>
+
+                <!-- Visual Element Container (for Grid Rotations or Visual Aids) -->
+                <div id="question-visual-container" class="hidden flex justify-center py-4 bg-slate-900/60 rounded-xl border border-slate-800">
+                    <!-- Dynamic Graphic Canvas/Grid -->
+                </div>
+
+                <!-- Answer Options Grid -->
+                <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <!-- Dynamic Option Buttons -->
+                </div>
+
+                <!-- Feedback & Explanation Panel -->
+                <div id="explanation-panel" class="hidden space-y-4 pt-4 border-t border-slate-800 animate-fade-in">
+                    <div id="feedback-header" class="flex items-center gap-3 font-bold text-lg">
+                        <!-- Correct/Incorrect Badge -->
+                    </div>
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 text-sm text-slate-300 space-y-2">
+                        <p class="font-semibold text-indigo-400 flex items-center gap-2">
+                            <i class="fa-solid fa-lightbulb"></i> Logical Breakdown:
+                        </p>
+                        <p id="explanation-text" class="leading-relaxed">
+                            <!-- Detailed step-by-step logic -->
+                        </p>
+                    </div>
+                    <button onclick="nextQuestion()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2">
+                        <span>Next Challenge</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: WORKOUT SUMMARY / RESULTS -->
+        <section id="view-results" class="hidden max-w-2xl mx-auto w-full space-y-6 text-center">
+            <div class="glass-panel p-8 rounded-2xl space-y-6">
+                <div class="w-20 h-20 bg-indigo-600/20 text-indigo-400 rounded-full flex items-center justify-center mx-auto border border-indigo-500/30">
+                    <i class="fa-solid fa-trophy text-3xl text-amber-400"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-extrabold text-white">Session Completed!</h2>
+                    <p class="text-slate-400 text-sm mt-1">Here is your cognitive performance summary</p>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4 py-4 border-y border-slate-800">
+                    <div class="p-3 bg-slate-900/50 rounded-xl">
+                        <span class="block text-xs text-slate-400 uppercase font-semibold">Score</span>
+                        <span id="res-score" class="text-2xl font-black text-indigo-400">0/5</span>
+                    </div>
+                    <div class="p-3 bg-slate-900/50 rounded-xl">
+                        <span class="block text-xs text-slate-400 uppercase font-semibold">Avg Speed</span>
+                        <span id="res-speed" class="text-2xl font-black text-emerald-400">0.0s</span>
+                    </div>
+                    <div class="p-3 bg-slate-900/50 rounded-xl">
+                        <span class="block text-xs text-slate-400 uppercase font-semibold">XP Earned</span>
+                        <span id="res-xp" class="text-2xl font-black text-amber-400">+0</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <button onclick="switchView('dashboard')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl transition-all">
+                        Main Menu
+                    </button>
+                    <button onclick="restartLastSession()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/30">
+                        Play Again
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 4: PERFORMANCE ANALYTICS -->
+        <section id="view-stats" class="hidden space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Cognitive Analytics</h2>
+                    <p class="text-xs text-slate-400">Detailed breakdown of your mental agility metrics</p>
+                </div>
+                <button onclick="switchView('dashboard')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold px-4 py-2 rounded-xl">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                </button>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Radar / Breakdown Chart -->
+                <div class="glass-panel p-5 rounded-2xl">
+                    <h3 class="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-indigo-400"></i> Domain Proficiency
+                    </h3>
+                    <div class="relative h-64">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Metrics Summary Cards -->
+                <div class="space-y-4">
+                    <div class="glass-panel p-5 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <span class="text-xs text-slate-400 uppercase font-bold">Total Questions Solved</span>
+                            <h4 id="stat-total-questions" class="text-3xl font-black text-white mt-1">0</h4>
+                        </div>
+                        <div class="w-12 h-12 bg-indigo-500/10 text-indigo-400 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-hashtag"></i>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <span class="text-xs text-slate-400 uppercase font-bold">Best Streak</span>
+                            <h4 id="stat-best-streak" class="text-3xl font-black text-amber-400 mt-1">0</h4>
+                        </div>
+                        <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-fire"></i>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <span class="text-xs text-slate-400 uppercase font-bold">Global Accuracy Rate</span>
+                            <h4 id="stat-global-accuracy" class="text-3xl font-black text-emerald-400 mt-1">0%</h4>
+                        </div>
+                        <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
+        CogniSharp Engine &bull; Pure Client-Side Dynamic Mind Workouts
+    </footer>
+
+    <!-- SCRIPT ENGINE -->
+    <script>
+        /* ==========================================================================
+           1. USER PROFILE & LOCAL STORAGE STATE
+           ========================================================================== */
+        let userStats = JSON.parse(localStorage.getItem('cognisharp_stats')) || {
+            xp: 0,
+            streak: 0,
+            bestStreak: 0,
+            totalAnswered: 0,
+            totalCorrect: 0,
+            categories: {
+                memory: { correct: 0, total: 0 },
+                spatial: { correct: 0, total: 0 },
+                pattern: { correct: 0, total: 0 },
+                logic: { correct: 0, total: 0 },
+                math: { correct: 0, total: 0 }
+            }
+        };
+
+        function saveStats() {
+            localStorage.setItem('cognisharp_stats', JSON.stringify(userStats));
+            updateHeaderStats();
+        }
+
+        function updateHeaderStats() {
+            document.getElementById('streak-display').innerText = userStats.streak;
+            document.getElementById('xp-display').innerText = userStats.xp;
+            const accuracy = userStats.totalAnswered > 0 
+                ? Math.round((userStats.totalCorrect / userStats.totalAnswered) * 100) 
+                : 0;
+            document.getElementById('accuracy-display').innerText = `${accuracy}%`;
+        }
+
+        /* ==========================================================================
+           2. PROCEDURAL QUESTION GENERATION ENGINE (Infinite Unique Questions)
+           ========================================================================== */
+        const Categories = {
+            MEMORY: 'memory',
+            SPATIAL: 'spatial',
+            PATTERN: 'pattern',
+            LOGIC: 'logic',
+            MATH: 'math'
+        };
+
+        // Utility Helpers
+        const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const choice = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
+
+        function generateQuestion(category = null) {
+            const catList = [Categories.MEMORY, Categories.SPATIAL, Categories.PATTERN, Categories.LOGIC, Categories.MATH];
+            const selectedCat = category || choice(catList);
+
+            switch (selectedCat) {
+                case Categories.MEMORY: return genMemoryQuestion();
+                case Categories.SPATIAL: return genSpatialQuestion();
+                case Categories.PATTERN: return genPatternQuestion();
+                case Categories.LOGIC: return genLogicQuestion();
+                case Categories.MATH: return genMathQuestion();
+            }
+        }
+
+        /* --- CATEGORY 1: Working Memory Math Chains --- */
+        function genMemoryQuestion() {
+            const startNum = randInt(4, 15);
+            const mult = randInt(2, 4);
+            const add = randInt(3, 12);
+            const div = choice([2, 3]);
+            
+            // Calculate chain ensuring clean whole numbers
+            let step1 = startNum * mult;
+            let step2 = step1 + add;
+            // ensure divisible by div
+            if (step2 % div !== 0) {
+                step2 += (div - (step2 % div));
+            }
+            const correctAns = step2 / div;
+
+            const statement = `Perform this chain in your head:<br><span class="text-indigo-400 font-mono text-xl sm:text-2xl font-bold">Start with ${startNum} &rarr; Multiply by ${mult} &rarr; Add ${step2 - step1} &rarr; Divide by ${div}</span>`;
+
+            // Distractors
+            let distractors = new Set([
+                correctAns + randInt(1, 3),
+                correctAns - randInt(1, 3),
+                correctAns + randInt(4, 6)
+            ]);
+            distractors.delete(correctAns);
+            let options = [correctAns, ...Array.from(distractors).slice(0, 3)];
+            options = shuffle(options);
+
+            return {
+                category: Categories.MEMORY,
+                categoryName: "Working Memory",
+                difficulty: "Medium",
+                text: statement,
+                options: options.map(String),
+                correctIndex: options.indexOf(correctAns),
+                explanation: `1) Start with <b>${startNum}</b>.<br>2) Multiply by ${mult} = <b>${step1}</b>.<br>3) Add ${step2 - step1} = <b>${step2}</b>.<br>4) Divide by ${div} = <b>${correctAns}</b>.`,
+                visual: null
+            };
+        }
+
+        /* --- CATEGORY 2: Spatial Grid Rotations --- */
+        function genSpatialQuestion() {
+            const positions = ["Top-Left", "Top-Right", "Bottom-Left", "Bottom-Right", "Center"];
+            const targetPos = choice(["Top-Left", "Top-Right", "Bottom-Left", "Bottom-Right"]);
+            const symbol = choice(["X", "O", "&#9733;", "&#9632;"]);
+            const degree = choice([90, 180, 270]);
+
+            // Spatial mappings for 3x3 grid rotation clockwise
+            const rotationMap90 = {
+                "Top-Left": "Top-Right",
+                "Top-Right": "Bottom-Right",
+                "Bottom-Right": "Bottom-Left",
+                "Bottom-Left": "Top-Left",
+                "Center": "Center"
+            };
+
+            let finalPos = targetPos;
+            const steps = degree / 90;
+            for (let i = 0; i < steps; i++) {
+                finalPos = rotationMap90[finalPos];
+            }
+
+            const statement = `In a 3x3 grid, a symbol <b>'${symbol}'</b> is placed at the <b>${targetPos}</b> corner. If the entire grid is rotated <b>${degree}° clockwise</b>, where is the symbol now located?`;
+
+            const allPositions = ["Top-Left", "Top-Right", "Bottom-Left", "Bottom-Right"];
+            const options = shuffle(allPositions);
+
+            return {
+                category: Categories.SPATIAL,
+                categoryName: "Spatial Reasoning",
+                difficulty: "Medium",
+                text: statement,
+                options: options,
+                correctIndex: options.indexOf(finalPos),
+                explanation: `Rotating ${degree}° Clockwise shifts corner positions by ${steps} step(s) around the grid frame. Moving <b>${targetPos}</b> by ${degree}° clockwise lands precisely at <b>${finalPos}</b>.`,
+                visual: `<div class="text-xs text-slate-400 font-mono text-center">Rotation angle: <span class="text-indigo-400 font-bold">${degree}° Clockwise</span></div>`
+            };
+        }
+
+        /* --- CATEGORY 3: Pattern Ciphers --- */
+        function genPatternQuestion() {
+            const shift = randInt(1, 3);
+            const sampleWords = ["MIND", "BOLD", "FAST", "GRID", "PEAK"];
+            const word = choice(sampleWords);
+
+            function shiftWord(str, s) {
+                return str.split('').map(char => {
+                    let code = char.charCodeAt(0);
+                    return String.fromCharCode(code + s);
+                }).join('');
+            }
+
+            const transformedSample = shiftWord("BRAIN", shift);
+            const targetTransformed = shiftWord(word, shift);
+
+            const statement = `Determine the rule from Example 1 and apply it to the target word:<br><br>
+            Example: <span class="font-mono text-amber-400 font-bold">BRAIN &rarr; ${transformedSample}</span><br>
+            Target: <span class="font-mono text-indigo-400 font-bold">${word} &rarr; ?</span>`;
+
+            // Generate options
+            const d1 = shiftWord(word, shift + 1);
+            const d2 = shiftWord(word, Math.max(1, shift - 1));
+            const d3 = shiftWord(word, shift + 2);
+
+            let options = shuffle([targetTransformed, d1, d2, d3]);
+
+            return {
+                category: Categories.PATTERN,
+                categoryName: "Pattern Decoding",
+                difficulty: "Hard",
+                text: statement,
+                options: options,
+                correctIndex: options.indexOf(targetTransformed),
+                explanation: `The cipher shifts every letter forward in the alphabet by <b>+${shift}</b> position(s). Applying +${shift} shift to each letter of <b>${word}</b> yields <b>${targetTransformed}</b>.`,
+                visual: null
+            };
+        }
+
+        /* --- CATEGORY 4: Semantic Logic & Sets --- */
+        function genLogicQuestion() {
+            const datasets = [
+                {
+                    items: ["Ostrich", "Emu", "Penguin", "Eagle"],
+                    odd: "Eagle",
+                    rule: "All others are flightless birds."
+                },
+                {
+                    items: ["Mercury", "Venus", "Mars", "Jupiter"],
+                    odd: "Jupiter",
+                    rule: "Jupiter is a gas giant, while the other three are terrestrial rocky planets."
+                },
+                {
+                    items: ["Copper", "Silver", "Gold", "Iron"],
+                    odd: "Iron",
+                    rule: "Copper, Silver, and Gold are coinage/precious metals in Group 11 of the periodic table."
+                },
+                {
+                    items: ["Square", "Circle", "Triangle", "Cube"],
+                    odd: "Cube",
+                    rule: "Cube is a 3D solid figure, while all others are 2D plane shapes."
+                }
+            ];
+
+            const selected = choice(datasets);
+            const options = shuffle([...selected.items]);
+
+            return {
+                category: Categories.LOGIC,
+                categoryName: "Deductive Logic",
+                difficulty: "Easy",
+                text: `Identify the <b>ODD one out</b> that does not belong in the group:`,
+                options: options,
+                correctIndex: options.indexOf(selected.odd),
+                explanation: `<b>${selected.odd}</b> is the odd one out. <br><b>Reason:</b> ${selected.rule}`,
+                visual: null
+            };
+        }
+
+        /* --- CATEGORY 5: Speed Math & Inequality --- */
+        function genMathQuestion() {
+            const a = randInt(12, 25);
+            const b = randInt(11, 19);
+            const c = randInt(15, 30);
+            const ans = (a * b) - c;
+
+            const statement = `Compute the exact value of:<br><span class="font-mono text-2xl font-bold text-emerald-400">(${a} &times; ${b}) - ${c}</span>`;
+
+            let options = shuffle([
+                ans,
+                ans + 10,
+                ans - 10,
+                ans + randInt(2, 5)
+            ].map(String));
+
+            return {
+                category: Categories.MATH,
+                categoryName: "Mental Speed",
+                difficulty: "Hard",
+                text: statement,
+                options: options,
+                correctIndex: options.indexOf(String(ans)),
+                explanation: `First multiply: ${a} &times; ${b} = ${a * b}. <br>Then subtract ${c}: ${a * b} - ${c} = <b>${ans}</b>.`,
+                visual: null
+            };
+        }
+
+        /* ==========================================================================
+           3. GAMEPLAY CONTROLLER & TIMER LOGIC
+           ========================================================================== */
+        let currentSession = {
+            mode: 'quick', // 'quick', 'blitz', 'category'
+            categoryFilter: null,
+            questions: [],
+            currentIndex: 0,
+            score: 0,
+            timerInterval: null,
+            timeElapsed: 0,
+            timeRemaining: 60,
+            startTime: 0,
+            responseTimes: []
+        };
+
+        function startSession(mode, category = null) {
+            currentSession.mode = mode;
+            currentSession.categoryFilter = category;
+            currentSession.currentIndex = 0;
+            currentSession.score = 0;
+            currentSession.responseTimes = [];
+            currentSession.timeElapsed = 0;
+            currentSession.timeRemaining = 60;
+
+            // Generate questions set
+            const totalQ = mode === 'quick' ? 5 : (mode === 'blitz' ? 15 : 5);
+            currentSession.questions = [];
+            for (let i = 0; i < totalQ; i++) {
+                currentSession.questions.push(generateQuestion(category));
+            }
+
+            switchView('gameplay');
+            startTimer();
+            loadQuestion();
+        }
+
+        function restartLastSession() {
+            startSession(currentSession.mode, currentSession.categoryFilter);
+        }
+
+        function loadQuestion() {
+            const q = currentSession.questions[currentSession.currentIndex];
+            
+            // Reset UI states
+            document.getElementById('explanation-panel').classList.add('hidden');
+            document.getElementById('question-card').classList.add('pulse-subtle');
+
+            // Header details
+            document.getElementById('game-category-badge').innerText = q.categoryName;
+            document.getElementById('game-title').innerText = `Question ${currentSession.currentIndex + 1} of ${currentSession.questions.length}`;
+            
+            // Progress Bar
+            const progress = ((currentSession.currentIndex + 1) / currentSession.questions.length) * 100;
+            document.getElementById('game-progress-bar').style.width = `${progress}%`;
+
+            // Question Details
+            document.getElementById('question-difficulty').innerText = q.difficulty;
+            document.getElementById('question-text').innerHTML = q.text;
+
+            // Visual elements if available
+            const visualContainer = document.getElementById('question-visual-container');
+            if (q.visual) {
+                visualContainer.innerHTML = q.visual;
+                visualContainer.classList.remove('hidden');
+            } else {
+                visualContainer.classList.add('hidden');
+            }
+
+            // Options setup
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((optText, index) => {
+                const btn = document.createElement('button');
+                btn.className = "p-4 bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-500 rounded-xl font-medium text-slate-200 text-left transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-between group";
+                btn.onclick = () => handleAnswer(index);
+                btn.innerHTML = `
+                    <span>${optText}</span>
+                    <span class="w-6 h-6 rounded-full border border-slate-700 group-hover:border-indigo-400 flex items-center justify-center text-xs text-slate-500 group-hover:text-indigo-400">${String.fromCharCode(65 + index)}</span>
+                `;
+                optionsContainer.appendChild(btn);
+            });
+
+            currentSession.startTime = Date.now();
+        }
+
+        function handleAnswer(selectedIndex) {
+            const q = currentSession.questions[currentSession.currentIndex];
+            const responseTime = (Date.now() - currentSession.startTime) / 1000;
+            currentSession.responseTimes.push(responseTime);
+
+            const isCorrect = selectedIndex === q.correctIndex;
+
+            // Disable all options
+            const optionsContainer = document.getElementById('options-container');
+            const buttons = optionsContainer.querySelectorAll('button');
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                btn.classList.remove('hover:border-indigo-500', 'hover:bg-slate-800');
+                if (idx === q.correctIndex) {
+                    btn.classList.add('bg-emerald-950/60', 'border-emerald-500', 'text-emerald-300');
+                } else if (idx === selectedIndex && !isCorrect) {
+                    btn.classList.add('bg-rose-950/60', 'border-rose-500', 'text-rose-300');
+                } else {
+                    btn.classList.add('opacity-40');
+                }
+            });
+
+            // Update stats
+            userStats.totalAnswered++;
+            userStats.categories[q.category].total++;
+
+            const feedbackHeader = document.getElementById('feedback-header');
+            if (isCorrect) {
+                currentSession.score++;
+                userStats.totalCorrect++;
+                userStats.streak++;
+                if (userStats.streak > userStats.bestStreak) userStats.bestStreak = userStats.streak;
+                userStats.xp += 20;
+                userStats.categories[q.category].correct++;
+
+                feedbackHeader.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-2xl"></i> <span class="text-emerald-400">Correct! Great Agility.</span>`;
+            } else {
+                userStats.streak = 0;
+                feedbackHeader.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-400 text-2xl"></i> <span class="text-rose-400">Incorrect Solution</span>`;
+            }
+
+            saveStats();
+
+            // Display logical breakdown
+            document.getElementById('explanation-text').innerHTML = q.explanation;
+            document.getElementById('explanation-panel').classList.remove('hidden');
+            document.getElementById('question-card').classList.remove('pulse-subtle');
+        }
+
+        function nextQuestion() {
+            currentSession.currentIndex++;
+            if (currentSession.currentIndex < currentSession.questions.length && (currentSession.mode !== 'blitz' || currentSession.timeRemaining > 0)) {
+                loadQuestion();
+            } else {
+                endSession();
+            }
+        }
+
+        function startTimer() {
+            clearInterval(currentSession.timerInterval);
+            const timerDisplay = document.getElementById('game-timer');
+
+            if (currentSession.mode === 'blitz') {
+                currentSession.timerInterval = setInterval(() => {
+                    currentSession.timeRemaining--;
+                    timerDisplay.innerText = `00:${currentSession.timeRemaining < 10 ? '0' : ''}${currentSession.timeRemaining}`;
+                    if (currentSession.timeRemaining <= 0) {
+                        clearInterval(currentSession.timerInterval);
+                        endSession();
+                    }
+                }, 1000);
+            } else {
+                currentSession.timerInterval = setInterval(() => {
+                    currentSession.timeElapsed++;
+                    const mins = Math.floor(currentSession.timeElapsed / 60);
+                    const secs = currentSession.timeElapsed % 60;
+                    timerDisplay.innerText = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                }, 1000);
+            }
+        }
+
+        function confirmExitGame() {
+            if (confirm("Are you sure you want to exit? Your session progress will be lost.")) {
+                clearInterval(currentSession.timerInterval);
+                switchView('dashboard');
+            }
+        }
+
+        function endSession() {
+            clearInterval(currentSession.timerInterval);
+            
+            // Calculate summary
+            const avgSpeed = currentSession.responseTimes.length > 0 
+                ? (currentSession.responseTimes.reduce((a, b) => a + b, 0) / currentSession.responseTimes.length).toFixed(1)
+                : "0.0";
+
+            document.getElementById('res-score').innerText = `${currentSession.score}/${currentSession.questions.length}`;
+            document.getElementById('res-speed').innerText = `${avgSpeed}s`;
+            document.getElementById('res-xp').innerText = `+${currentSession.score * 20}`;
+
+            if (currentSession.score === currentSession.questions.length && currentSession.questions.length > 0) {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            }
+
+            switchView('results');
+        }
+
+        /* ==========================================================================
+           4. VIEW NAVIGATION & ANALYTICS CHARTS
+           ========================================================================== */
+        let categoryChartInstance = null;
+
+        function switchView(viewName) {
+            ['dashboard', 'gameplay', 'results', 'stats'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+            });
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+
+            if (viewName === 'stats') {
+                renderAnalytics();
+            }
+        }
+
+        function renderAnalytics() {
+            document.getElementById('stat-total-questions').innerText = userStats.totalAnswered;
+            document.getElementById('stat-best-streak').innerText = userStats.bestStreak;
+            
+            const acc = userStats.totalAnswered > 0 
+                ? Math.round((userStats.totalCorrect / userStats.totalAnswered) * 100) 
+                : 0;
+            document.getElementById('stat-global-accuracy').innerText = `${acc}%`;
+
+            // Render Radar Chart
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            if (categoryChartInstance) categoryChartInstance.destroy();
+
+            const cats = userStats.categories;
+            const dataValues = [
+                cats.memory.total ? Math.round((cats.memory.correct / cats.memory.total) * 100) : 0,
+                cats.spatial.total ? Math.round((cats.spatial.correct / cats.spatial.total) * 100) : 0,
+                cats.pattern.total ? Math.round((cats.pattern.correct / cats.pattern.total) * 100) : 0,
+                cats.logic.total ? Math.round((cats.logic.correct / cats.logic.total) * 100) : 0,
+                cats.math.total ? Math.round((cats.math.correct / cats.math.total) * 100) : 0,
+            ];
+
+            categoryChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Working Memory', 'Spatial Reasoning', 'Pattern Decoding', 'Deductive Logic', 'Mental Speed'],
+                    datasets: [{
+                        label: 'Accuracy (%)',
+                        data: dataValues,
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        pointBackgroundColor: 'rgba(129, 140, 248, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            pointLabels: { color: '#94a3b8', font: { size: 11 } },
+                            ticks: { display: false, backdropColor: 'transparent' },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        /* Dark Mode Theme Switcher */
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                icon.className = 'fa-solid fa-sun text-amber-400 text-lg';
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                icon.className = 'fa-solid fa-moon text-lg';
+            }
+        }
+
+        // Initialize App on Load
+        window.onload = function() {
+            updateHeaderStats();
+        };
+    </script>
+</body>
+</html>
