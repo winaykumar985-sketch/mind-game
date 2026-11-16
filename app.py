@@ -88,47 +88,67 @@ if 'timer_enabled' not in st.session_state: st.session_state.timer_enabled = Tru
 # --- PROCEDURAL GENERATORS ---
 
 def gen_statistics(level):
-    # Determine if we show one of your exact handwritten problems, or generate a new one
-    scenario = random.random()
+    stat_type = random.choice(["Mean", "Median", "Mode"])
     
-    if scenario < 0.2:
-        # Image 1 Exact Problem: 8 Students Exam Marks
-        data = [45, 55, 60, 70, 65, 50, 75, 80]
-        title, x_label, y_label = "Business Statistics Exam", "Student", "Marks"
-        x_data = [f"Std {i+1}" for i in range(8)]
-    elif scenario < 0.4:
-        # Image 2 Exact Problem: 7 Days Sales
-        data = [12, 15, 18, 10, 20, 25, 14]
-        title, x_label, y_label = "Daily Store Sales", "Day", "Sales (Rs)"
-        x_data = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-    else:
-        # Procedural Generation for infinite variants
-        contexts = [
-            ("Weekly Ad Revenue", "Day", "Revenue ($)"),
-            ("Website Visitors", "Day", "Traffic"),
-            ("App Downloads", "Month", "Downloads")
-        ]
-        title, x_label, y_label = random.choice(contexts)
-        n_items = random.choice([5, 7, 8])
-        data = [random.randint(10 * level, 50 * level) for _ in range(n_items)]
-        x_data = [f"{x_label} {i+1}" for i in range(n_items)]
-
-    mean_val = round(sum(data) / len(data), 2)
-    
-    # Generate tricky wrong options
-    opts = [
-        mean_val, 
-        round(mean_val + random.uniform(1.0, 3.0), 2), 
-        round(mean_val - random.uniform(1.0, 3.0), 2), 
-        round(sum(data) / (len(data) - 1), 2) # Common mistake: dividing by N-1
+    contexts = [
+        ("Weekly Ad Revenue", "Day", "Revenue ($)"),
+        ("Website Visitors", "Day", "Traffic"),
+        ("App Downloads", "Month", "Downloads"),
+        ("Store Sales", "Day", "Sales (Rs)")
     ]
-    random.shuffle(opts)
+    title, x_label, y_label = random.choice(contexts)
+    n_items = random.choice([5, 7]) # Odd numbers make Median cleaner
+    x_data = [f"{x_label} {i+1}" for i in range(n_items)]
+    
+    if stat_type == "Mode":
+        base_val = random.randint(10 * level, 50 * level)
+        data = [random.randint(10 * level, 50 * level) for _ in range(n_items)]
+        # Inject the mode so it repeats
+        data[0] = base_val
+        data[1] = base_val
+        if n_items == 7:
+            data[2] = base_val
+        random.shuffle(data)
+        ans = base_val
+        
+        opts = list(set([ans, ans + random.randint(1,5), ans - random.randint(1,5), random.choice(data)]))
+        while len(opts) < 4:
+            new_opt = ans + random.randint(6, 15)
+            if new_opt not in opts: opts.append(new_opt)
+        random.shuffle(opts)
+        
+        exp = f"<b>Mode:</b> The value that appears most frequently.<br><b>Values:</b> {', '.join(map(str, data))}<br>The number <b>{ans}</b> appears most often."
+        q_text = f"Analyze the interactive chart below. Identify the <b>Mode</b> (most frequent value) of the {title}."
+        
+    elif stat_type == "Median":
+        data = [random.randint(10 * level, 50 * level) for _ in range(n_items)]
+        sorted_data = sorted(data)
+        mid_idx = n_items // 2
+        ans = sorted_data[mid_idx]
+        
+        opts = list(set([ans, sorted_data[0], sorted_data[-1], sorted_data[mid_idx - 1]]))
+        while len(opts) < 4:
+            new_opt = ans + random.randint(2, 8)
+            if new_opt not in opts: opts.append(new_opt)
+        random.shuffle(opts)
+        
+        exp = f"<b>Median:</b> The middle value when arranged in order.<br><b>Original data:</b> {', '.join(map(str, data))}<br><b>Sorted (Ascending):</b> {', '.join(map(str, sorted_data))}<br>The middle value (position {mid_idx + 1}) is <b>{ans}</b>."
+        q_text = f"Analyze the interactive chart below. Calculate the <b>Median</b> (middle value) of the {title}."
+        
+    else: # Mean
+        data = [random.randint(10 * level, 50 * level) for _ in range(n_items)]
+        ans = round(sum(data) / len(data), 2)
+        opts = [ans, round(ans + random.uniform(1.0, 3.0), 2), round(ans - random.uniform(1.0, 3.0), 2), round(sum(data) / (len(data) - 1), 2)]
+        random.shuffle(opts)
+        
+        exp = f"<b>Formula:</b> x̄ = ∑x / N<br><b>Sum (∑x):</b> {' + '.join(map(str, data))} = {sum(data)}<br><b>Observations (N):</b> {len(data)}<br><b>Mean:</b> {sum(data)} ÷ {len(data)} = <b>{ans}</b>"
+        q_text = f"Analyze the interactive chart below. Calculate the <b>Arithmetic Mean</b> (average) of the {title}."
 
     return {
-        "cat": "Statistics", "title": f"Data Analytics & Averages (Level {level})",
-        "q": f"Analyze the interactive chart below. Calculate the arithmetic mean (average) of the {title}.",
-        "opts": opts, "ans": mean_val,
-        "exp": f"<b>Formula:</b> x̄ = ∑x / N<br><b>Sum of values (∑x):</b> {' + '.join(map(str, data))} = {sum(data)}<br><b>Observations (N):</b> {len(data)}<br><b>Mean:</b> {sum(data)} ÷ {len(data)} = <b>{mean_val}</b>",
+        "cat": "Statistics", "title": f"Data Analytics ({stat_type} - Level {level})",
+        "q": q_text,
+        "opts": opts, "ans": ans,
+        "exp": exp,
         "chart_data": {"x": x_data, "y": data, "title": title, "y_label": y_label}
     }
 
@@ -160,7 +180,7 @@ def start_workout(specific_category=None):
             if specific_category == "Memory": q = gen_memory(level)
             elif specific_category == "Statistics": q = gen_statistics(level)
             else:
-                q = random.choice([gen_memory, gen_statistics])(level) # Expanded logic fits here
+                q = random.choice([gen_memory, gen_statistics])(level)
                 
             if q["q"] not in used_questions:
                 used_questions.add(q["q"])
@@ -176,7 +196,7 @@ def start_workout(specific_category=None):
 def check_answer(opt):
     time_taken = round(time.time() - st.session_state.q_start_time, 1)
     if not st.session_state.timer_enabled:
-        time_taken = 0 # Ignore time if timer is off
+        time_taken = 0 
         
     st.session_state.times.append(time_taken)
     st.session_state.answered = True
@@ -185,7 +205,6 @@ def check_answer(opt):
     stats = st.session_state.stats
     stats['total_q'] += 1
     
-    # Initialize cat if new
     if q['cat'] not in stats['cat']:
         stats['cat'][q['cat']] = {'c': 0, 't': 0}
         
@@ -195,10 +214,9 @@ def check_answer(opt):
         stats['total_correct'] += 1
         stats['streak'] += 1
         
-        # Calculate XP
         xp_earned = 20 + (st.session_state.q_idx * 5)
         if st.session_state.timer_enabled and time_taken < 15:
-            xp_earned += 10 # Speed Bonus
+            xp_earned += 10 
             
         stats['xp'] += xp_earned
         stats['cat'][q['cat']]['c'] += 1
@@ -211,7 +229,6 @@ def check_answer(opt):
         time_msg = f"⏱️ Time: {time_taken}s" if st.session_state.timer_enabled else "⏳ Untimed Mode"
         st.session_state.feedback_html = f"<h3 style='color:#f87171'>Incorrect</h3>{time_msg}<br><br>Correct Answer: <b>{q['ans']}</b><br><br>{q['exp']}"
 
-    # Auto-save
     st.session_state.all_profiles[st.session_state.username] = st.session_state.stats
     save_cloud_db(st.session_state.all_profiles)
 
@@ -258,7 +275,6 @@ elif st.session_state.view == 'dashboard':
     </div>
     """, unsafe_allow_html=True)
 
-    # TIMER TOGGLE UI
     t_col1, t_col2 = st.columns([3, 1])
     with t_col2:
         st.session_state.timer_enabled = st.toggle("⏱️ Enable Speed Timer Mode", value=st.session_state.timer_enabled)
@@ -267,7 +283,7 @@ elif st.session_state.view == 'dashboard':
     
     r1c1, r1c2 = st.columns(2)
     with r1c1: st.button("🔢 Working Memory\n\nSequential Math Chains", on_click=start_workout, args=("Memory",))
-    with r1c2: st.button("📊 Business Analytics\n\nVisual Statistics & Averages", on_click=start_workout, args=("Statistics",))
+    with r1c2: st.button("📊 Business Analytics\n\nMean, Median & Mode", on_click=start_workout, args=("Statistics",))
 
 elif st.session_state.view == 'game':
     q = st.session_state.session_q[st.session_state.q_idx]
@@ -277,14 +293,21 @@ elif st.session_state.view == 'game':
     
     st.markdown(f"<h3 style='color:#e2e8f0; font-weight:400;'>{q['q']}</h3>", unsafe_allow_html=True)
     
-    # RENDER INTERACTIVE VISUAL CHART IF IT EXISTS
     if "chart_data" in q:
-        fig = go.Figure(data=[go.Bar(x=q['chart_data']['x'], y=q['chart_data']['y'], marker_color='#818cf8')])
+        fig = go.Figure(data=[go.Bar(
+            x=q['chart_data']['x'], 
+            y=q['chart_data']['y'], 
+            marker_color='#818cf8',
+            text=q['chart_data']['y'], 
+            textposition='outside',
+            textfont=dict(color='white', size=14)
+        )])
         fig.update_layout(
             title=q['chart_data']['title'],
             yaxis_title=q['chart_data']['y_label'],
             paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(color='white')
+            font=dict(color='white'),
+            yaxis=dict(range=[0, max(q['chart_data']['y']) * 1.2]) 
         )
         st.plotly_chart(fig, use_container_width=True)
     
